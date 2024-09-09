@@ -1,5 +1,15 @@
 // 0x6080604052348015600e575f80fd5b5060a58061001b5f395ff3fe6080604052348015600e575f80fd5b50600436106030575f3560e01c8063cdfead2e146034578063e026c017146045575b5f80fd5b6043603f3660046059565b5f55565b005b5f5460405190815260200160405180910390f35b5f602082840312156068575f80fd5b503591905056fea2646970667358221220c276cfaa26a978c7cbd6472fe8f6998f4608429a6fb1e97f12f1b1fd0b52111d64736f6c63430008140033
 
+// Contract Creation code
+// 0x6080604052348015600e575f80fd5b5060a58061001b5f395ff3
+
+
+// Runtime Code
+// fe6080604052348015600e575f80fd5b50600436106030575f3560e01c8063cdfead2e146034578063e026c017146045575b5f80fd5b6043603f3660046059565b5f55565b005b5f5460405190815260200160405180910390f35b5f602082840312156068575f80fd5b503591905056
+
+//Metadata
+// fea2646970667358221220c276cfaa26a978c7cbd6472fe8f6998f4608429a6fb1e97f12f1b1fd0b52111d64736f6c63430008140033
+
 // 3 sections:
 // 1. Contract Creation
 // 2. Runtime Code
@@ -42,7 +52,7 @@ INVALID             // [] doesn't do anything - end of contract creation
 // free memory pointer
 PUSH1 0x80
 PUSH1 0x40
-MSTORE
+MSTORE              // Memory [0x40: 0x80]
 
 // Checking for msg.value, and if given, reverting
 CALLVALUE           // [msg.value]
@@ -81,7 +91,7 @@ PUSH1 0x34          // [0x34, func_selector == 0xcdfead2e, func_selector]
 JUMPI               // [func_selector]
 // if func_selector == 0xcdfead2e -> updateHorseNumber (set_number_of_horses)
 
-// function dispatching for read number of horses
+// function dispatching for read number of horses (readNumberOfHorses)
 DUP1                // [func_selector, func_selector]
 PUSH4 0xe026c017    // [0xe026c017, func_selector, func_selector]
 EQ                  // [func_selector == 0xe026c017, func_selector]
@@ -122,24 +132,27 @@ JUMP                // [func_selector]
 JUMPDEST            // [func_selector]
 STOP                // [func_selector]
 
-
-JUMPDEST
-PUSH0
-SLOAD
-PUSH1 0x40
-MLOAD
-SWAP1
-DUP2
-MSTORE
-PUSH1 0x20
-ADD
-PUSH1 0x40
-MLOAD
-DUP1
-SWAP2
-SUB
-SWAP1
-RETURN
+// readNumberOfHorses jump dest 1
+// The only jump dest
+JUMPDEST            // [func_selector]
+PUSH0               // [0x00, func_selector]
+SLOAD               // [numHorses, func_selector]
+PUSH1 0x40          // [0x40, numHorses, func_selector]
+MLOAD               // [0x80, numHorses, func_selector] 
+// Memory [0x40: 0x80] (free memory pointer) that we are now loading into memory
+SWAP1               // [numHorses, 0x80, func_selector]
+DUP2                // [0x80, numHorses, 0x80, func_selector]
+MSTORE              // [0x80, func_selector] Memory: 0x80 -> numHorses
+PUSH1 0x20          // [0x20, 0x80, func_selector]
+ADD                 // [0xA0, func_selector]
+PUSH1 0x40          // [0x40, 0xA0, func_selector]
+MLOAD               // [0x80, 0xA0, func_selector]
+DUP1                // [0x80, 0x80, 0xA0, func_selector]
+SWAP2               // [0xA0, 0x80, 0x80, func_selector]
+SUB                 // [0xA0 - 0x80, 0x80, func_selector]
+SWAP1               // [0x80, 0xA0 - 0x80, func_selector]
+// Return a value of size 32 bytes, that's located at position 0x80 in memory -> numHorses
+RETURN              // [func_selector]
 
 
 // updateHorseNumber jump dest 2
@@ -179,6 +192,8 @@ POP                 // [0x3f, calldata (of numberToUpdate), 0x43, func_selector]
 JUMP
 // jump to dest 4
 
+
+// 3. Metadata (used by tools like etherscan, etc)
 INVALID
 LOG2
 PUSH5 0x6970667358
