@@ -38,7 +38,30 @@ $forge test --match-path *Huff*  --debug testWriteValue -vvvv
 1. Every smart contract starts with a function dispatcher - this is when you check the call data sent to the contract. This is how you know which function to call.
 2. Once you find the matching function you route the call to code associated with that function
 
-## Function Interface Declaration:
+## Huff, Yul & Solidity Gas Comparisons
+
+```sh
+$forge snapshot
+```
+
+- Results will be stored in `.gas-snapshot` text file
+- They show that the Huff version is cheaper than the Solidity version
+
+## Other installs
+
+```sh
+$forge install openzeppelin/openzeppelin-contracts@v5.0.2 --no-commit
+```
+
+```toml
+remappings = ['foundry-huff/=lib/foundry-huff/src/', "@openzeppelin/=lib/openzeppelin-contracts/contracts/"]
+```
+
+For hashmaps:
+
+```sh
+$forge install huff-language/huffmate --no-commit
+```
 
 ```solidity
 #define function updateHorseNumber(uint256) nonpayable returns ()
